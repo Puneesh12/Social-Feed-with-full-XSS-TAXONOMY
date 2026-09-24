@@ -40,6 +40,13 @@ export default function App() {
     api.me().then(setMe).catch(() => setMe(null)).finally(() => setAuthChecked(true));
   useEffect(() => { refreshMe(); }, []);
 
+  // Logged-in users should never sit on the auth routes — send them to the feed.
+  useEffect(() => {
+    if (authChecked && me && (route.path === '/login' || route.path === '/signup')) {
+      navigate('/feed');
+    }
+  }, [authChecked, me, route.path]);
+
   // Gate: nothing loads until we know if you're logged in (avoids a flash).
   if (!authChecked) {
     return <div className="boot"><span className="boot-logo">🐦</span></div>;
@@ -60,7 +67,7 @@ export default function App() {
 
   const view = route.parts[0] || 'feed';
   const titles: Record<string, string> = {
-    feed: 'Home', search: 'Explore', profile: 'Profile', settings: 'Settings', login: 'Sign in',
+    feed: 'Home', search: 'Explore', profile: 'Profile', settings: 'Settings',
   };
 
   return (
@@ -120,7 +127,12 @@ export default function App() {
 
           {view === 'settings' && <ProfileEdit onSaved={() => setFeedKey((k) => k + 1)} />}
 
-          {view === 'login' && <p className="pad">You're logged in as @{me.username}.</p>}
+          {(view === 'login' || view === 'signup') && (
+            <>
+              <Composer me={me.display_name || me.username} onPosted={() => setFeedKey((k) => k + 1)} />
+              <Feed key={feedKey} />
+            </>
+          )}
         </div>
       </main>
 
