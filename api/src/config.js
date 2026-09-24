@@ -20,6 +20,10 @@ export const config = {
     user: process.env.POSTGRES_USER || 'chirp_app',
     password: process.env.POSTGRES_PASSWORD || 'chirp_app_pw',
   },
+  mongo: {
+    uri: process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017',
+    database: process.env.MONGODB_DB || 'chirp',
+  },
   redis: {
     host: process.env.REDIS_HOST || 'redis',
     port: parseInt(process.env.REDIS_PORT || '6379', 10),

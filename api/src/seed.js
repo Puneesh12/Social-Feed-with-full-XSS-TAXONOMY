@@ -2,7 +2,7 @@
 // Seed a few users and benign posts so the feed isn't empty on first run.
 // Run inside the api container:  docker compose exec api node src/seed.js
 // -----------------------------------------------------------------------------
-import { query, waitForDb } from './db.js';
+import { createPost, createUser, findUserByUsername, updateUserRole, upsertProfile, waitForDb } from './db.js';
 import { hashPassword } from './auth.js';
 
 const users = [
@@ -26,23 +26,14 @@ await waitForDb();
 const ids = {};
 for (const u of users) {
   const hash = await hashPassword(u.password);
-  const { rows } = await query(
-    `INSERT INTO users (username, password_hash, role) VALUES ($1,$2,$3)
-     ON CONFLICT (username) DO UPDATE SET role = EXCLUDED.role
-     RETURNING id`,
-    [u.username, hash, u.role]
-  );
-  ids[u.username] = rows[0].id;
-  await query(
-    `INSERT INTO profiles (user_id, display_name, bio, website) VALUES ($1,$2,$3,$4)
-     ON CONFLICT (user_id) DO UPDATE
-       SET display_name = EXCLUDED.display_name, bio = EXCLUDED.bio, website = EXCLUDED.website`,
-    [ids[u.username], u.display, u.bio, u.website]
-  );
+  const existing = await findUserByUsername(u.username);
+  ids[u.username] = existing?._id.toString() || await createUser({ username: u.username, password_hash: hash, role: u.role });
+  if (existing) await updateUserRole(ids[u.username], u.role);
+  await upsertProfile(ids[u.username], { display_name: u.display, bio: u.bio, website: u.website, avatar_url: '' });
 }
 
 for (const [author, body] of posts) {
-  await query('INSERT INTO posts (author_id, body) VALUES ($1,$2)', [ids[author], body]);
+  await createPost({ author_id: ids[author], body, link_url: '', visibility: 'public' });
 }
 
 console.log('Seeded users:', Object.keys(ids).join(', '));

@@ -4,8 +4,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import RedisStore from 'connect-redis';
-import { createClient } from 'redis';
+import MongoStore from 'connect-mongo';
 import rateLimit from 'express-rate-limit';
 
 import { config } from './config.js';
@@ -21,11 +20,6 @@ const app = express();
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
 
-// --- Redis-backed sessions (server-side; cookie is an opaque id, report §4.5)
-const redisClient = createClient({ socket: { host: config.redis.host, port: config.redis.port } });
-redisClient.on('error', (e) => console.error('redis error', e.message));
-await redisClient.connect();
-
 // --- Body + cookies ---------------------------------------------------------
 app.use(express.json({ limit: '128kb' }));
 app.use(express.urlencoded({ extended: false }));
@@ -36,7 +30,7 @@ app.use((req, res, next) => { applySecurityHeaders(req, res); next(); });
 
 // --- Sessions ---------------------------------------------------------------
 app.use(session({
-  store: new RedisStore({ client: redisClient, prefix: 'chirp:sess:' }),
+  store: MongoStore.create({ mongoUrl: config.mongo.uri, dbName: config.mongo.database, collectionName: 'sessions' }),
   name: 'sid',
   secret: config.sessionSecret,
   resave: false,

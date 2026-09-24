@@ -1,8 +1,7 @@
 # =============================================================================
 # Chirp — full lab stack (report §4.6 / Appendix D)
 #
-#   nginx (edge, security headers)  ->  api (Express)  ->  db (PostgreSQL)
-#                                                      \->  redis (sessions)
+#   nginx (edge, security headers)  ->  api (Express)  ->  db (MongoDB)
 #   collector (attacker listener, lab-only)
 #
 # One code base, two builds. Flip BUILD_MODE in .env (vulnerable | defended)
@@ -11,30 +10,13 @@
 
 services:
   db:
-    image: postgres:16-alpine
+    image: mongo:7
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-chirp}
-      # The container superuser; the app itself uses a least-privilege role
-      # created by init.sql.
-      POSTGRES_PASSWORD: ${POSTGRES_SUPERPASSWORD:-postgres}
-      APP_DB: ${POSTGRES_DB:-chirp}
-      APP_USER: ${POSTGRES_USER:-chirp_app}
-      APP_PASSWORD: ${POSTGRES_PASSWORD:-chirp_app_pw}
+      MONGO_INITDB_DATABASE: ${MONGODB_DB:-chirp}
     volumes:
-      - db_data:/var/lib/postgresql/data
-      - ./api/db/init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro
+      - db_data:/data/db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-    networks: [chirp_net]
-
-  redis:
-    image: redis:7-alpine
-    command: ["redis-server", "--save", "", "--appendonly", "no"]
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.runCommand({ ping: 1 }).ok' | grep 1"]
       interval: 5s
       timeout: 3s
       retries: 10
@@ -46,18 +28,12 @@ services:
       NODE_ENV: production
       BUILD_MODE: ${BUILD_MODE:-vulnerable}
       PORT: ${API_PORT:-3000}
-      POSTGRES_HOST: ${POSTGRES_HOST:-db}
-      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
-      POSTGRES_DB: ${POSTGRES_DB:-chirp}
-      POSTGRES_USER: ${POSTGRES_USER:-chirp_app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chirp_app_pw}
-      REDIS_HOST: ${REDIS_HOST:-redis}
-      REDIS_PORT: ${REDIS_PORT:-6379}
+      MONGODB_URI: ${MONGODB_URI:-mongodb://db:27017}
+      MONGODB_DB: ${MONGODB_DB:-chirp}
       SESSION_SECRET: ${SESSION_SECRET:-dev-only-session-secret-change-me}
       CSRF_SECRET: ${CSRF_SECRET:-dev-only-csrf-secret-change-me}
     depends_on:
       db: { condition: service_healthy }
-      redis: { condition: service_healthy }
     networks: [chirp_net]
 
   web:

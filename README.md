@@ -61,8 +61,8 @@ Check the live mode any time: `curl http://localhost:8080/api/config`.
 ### No-Docker dev (optional)
 
 ```bash
-# terminal 1 — API (needs local Postgres + Redis, or point env at them)
-cd api && npm install && BUILD_MODE=vulnerable npm start
+# terminal 1 — API (needs local MongoDB running on localhost:27017)
+cd api && npm install && MONGODB_URI=mongodb://127.0.0.1:27017 MONGODB_DB=chirp BUILD_MODE=vulnerable npm start
 # terminal 2 — SPA
 cd web && npm install && VITE_BUILD_MODE=vulnerable npm run dev   # http://localhost:5173
 ```

@@ -8,7 +8,7 @@
 // page carries a nonce-based CSP (set by applySecurityHeaders on the response).
 // -----------------------------------------------------------------------------
 import { Router } from 'express';
-import { query } from '../db.js';
+import { searchPosts } from '../db.js';
 import { requireAuth } from '../auth.js';
 import { config } from '../config.js';
 import { outHtml, sanitizeRichHtml } from '../security.js';
@@ -39,14 +39,7 @@ pagesRouter.get('/search', async (req, res) => {
   const q = req.query.q ?? '';
   let results = [];
   if (String(q).trim()) {
-    const { rows } = await query(
-      `SELECT p.id, p.body, u.username
-       FROM posts p JOIN users u ON u.id = p.author_id
-       WHERE p.body ILIKE $1
-       ORDER BY p.created_at DESC LIMIT 25`,
-      [`%${q}%`]                                   // parameterised: no SQLi
-    );
-    results = rows;
+    results = await searchPosts(q);
   }
 
   // (!) THE REFLECTED SINK: the query is echoed back into the page.
