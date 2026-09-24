@@ -49,7 +49,7 @@ export function PostCard({ p }: { p: Post }) {
           <span className="act">💬 <b>{n % 7}</b></span>
           <span className="act">🔁 <b>{n % 4}</b></span>
           <span className="act">♥ <b>{n % 11}</b></span>
-          <span className="act">📊 <b>{(n >> 3) % 90}</b></span>
+          <span className="act">📊 <b>{(n >>> 3) % 90}</b></span>
         </div>
       </div>
     </article>
