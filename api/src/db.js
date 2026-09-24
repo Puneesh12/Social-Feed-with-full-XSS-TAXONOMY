@@ -12,6 +12,19 @@ function id(value) {
   return new ObjectId(String(value));
 }
 
+// Safe cast for caller-supplied ids: returns an ObjectId, or null when the
+// value isn't a valid id. Callers turn null into a 404 instead of a 500 crash.
+function toId(value) {
+  return ObjectId.isValid(value) ? new ObjectId(String(value)) : null;
+}
+
+// Force query inputs to strings so a client can't smuggle a Mongo operator
+// object (e.g. {"$gt":""}) into a filter — the NoSQL-injection equivalent of
+// parameterising SQL.
+function str(value) {
+  return typeof value === 'string' ? value : String(value ?? '');
+}
+
 function collections() {
   return {
     users: database.collection('users'), profiles: database.collection('profiles'),
@@ -45,8 +58,10 @@ export async function waitForDb(retries = 20, delayMs = 1000) {
 }
 
 export async function findUserById(userId) {
+  const oid = toId(userId);
+  if (!oid) return null;
   const { users, profiles } = collections();
-  const user = await users.findOne({ _id: id(userId) });
+  const user = await users.findOne({ _id: oid });
   if (!user) return null;
   const profile = await profiles.findOne({ user_id: user._id });
   return { id: user._id.toString(), username: user.username, role: user.role,
@@ -55,11 +70,11 @@ export async function findUserById(userId) {
 }
 
 export async function findUserByUsername(username, projection) {
-  return collections().users.findOne({ username }, { projection });
+  return collections().users.findOne({ username: str(username) }, { projection });
 }
 
 export async function createUser({ username, password_hash, role = 'user' }) {
-  const result = await collections().users.insertOne({ username, password_hash, role, created_at: new Date() });
+  const result = await collections().users.insertOne({ username: str(username), password_hash, role, created_at: new Date() });
   return result.insertedId.toString();
 }
 
@@ -85,8 +100,10 @@ export async function createPost(values) {
 }
 
 export async function findPost(postId) {
+  const oid = toId(postId);
+  if (!oid) return null;
   const { posts, users, profiles } = collections();
-  const post = await posts.findOne({ _id: id(postId) });
+  const post = await posts.findOne({ _id: oid });
   if (!post) return null;
   const [user, profile] = await Promise.all([users.findOne({ _id: post.author_id }), profiles.findOne({ user_id: post.author_id })]);
   return { id: post._id.toString(), body: post.body, link_url: post.link_url, created_at: post.created_at,
@@ -94,11 +111,16 @@ export async function findPost(postId) {
 }
 
 export async function deletePost(postId, authorId) {
-  return collections().posts.deleteOne({ _id: id(postId), author_id: id(authorId) });
+  const oid = toId(postId);
+  if (!oid) return { deletedCount: 0 };
+  return collections().posts.deleteOne({ _id: oid, author_id: id(authorId) });
 }
 
 export async function createComment(values) {
-  await collections().comments.insertOne({ ...values, post_id: id(values.post_id), author_id: id(values.author_id), created_at: new Date() });
+  const postId = toId(values.post_id);
+  if (!postId) return { ok: false };
+  await collections().comments.insertOne({ body: str(values.body), post_id: postId, author_id: id(values.author_id), created_at: new Date() });
+  return { ok: true };
 }
 
 export async function findProfile(username) {
@@ -139,7 +161,7 @@ export async function updateUserRole(userId, role) {
 }
 
 export async function listReports(status) {
-  const reports = await collections().reports.find({ status }).sort({ created_at: -1 }).toArray();
+  const reports = await collections().reports.find({ status: str(status) }).sort({ created_at: -1 }).toArray();
   return Promise.all(reports.map(async (report) => {
     const post = await collections().posts.findOne({ _id: report.post_id });
     return { id: report._id.toString(), status: report.status, created_at: report.created_at,

@@ -49,7 +49,8 @@ contentRouter.delete('/posts/:id', requireAuth, async (req, res) => {
 contentRouter.post('/posts/:id/comments', requireAuth, async (req, res) => {
   const { body } = req.body || {};
   if (!body || !String(body).trim()) return res.status(400).json({ error: 'body required' });
-  await createComment({ post_id: req.params.id, author_id: req.session.userId, body });
+  const result = await createComment({ post_id: req.params.id, author_id: req.session.userId, body });
+  if (!result.ok) return res.status(404).json({ error: 'post not found' });
   res.status(201).json({ ok: true });
 });
 
