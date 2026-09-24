@@ -21,19 +21,22 @@ export function Auth({ onAuth }: { onAuth: () => void }) {
   }
 
   return (
-    <form className="auth" onSubmit={submit}>
-      <h2>{mode === 'login' ? 'Log in' : 'Create account'}</h2>
-      <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="username" />
-      {mode === 'register' && (
-        <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="display name" />
-      )}
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="password" />
-      {error && <p className="error">{error}</p>}
-      <button type="submit">{mode === 'login' ? 'Log in' : 'Register'}</button>
-      <button type="button" className="link-btn" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
-        {mode === 'login' ? 'Need an account? Register' : 'Have an account? Log in'}
-      </button>
-      <p className="muted small">Demo logins: alice / password123 · admin / admin12345</p>
-    </form>
+    <div className="auth-wrap">
+      <form className="auth-card" onSubmit={submit}>
+        <div className="auth-logo">🐦</div>
+        <h2>{mode === 'login' ? 'Sign in to Chirp' : 'Join Chirp today'}</h2>
+        <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" autoFocus />
+        {mode === 'register' && (
+          <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Display name" />
+        )}
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
+        {error && <p className="error">{error}</p>}
+        <button className="btn-primary full" type="submit">{mode === 'login' ? 'Log in' : 'Create account'}</button>
+        <button type="button" className="link-btn" onClick={() => setMode(mode === 'login' ? 'register' : 'login')}>
+          {mode === 'login' ? "Don't have an account? Sign up" : 'Already registered? Log in'}
+        </button>
+        <p className="muted small demo-note">Demo: <b>alice</b> / password123 · <b>admin</b> / admin12345</p>
+      </form>
+    </div>
   );
 }

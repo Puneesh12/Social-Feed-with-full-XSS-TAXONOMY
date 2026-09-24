@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 
-// Lets a logged-in user set their display name, bio, and website — the input
-// side of the stored (XSS-S-01) and javascript:-URL (XSS-P-01) cases.
+// Input side of the stored (XSS-S-01) and javascript:-URL (XSS-P-01) cases.
 export function ProfileEdit({ onSaved }: { onSaved: () => void }) {
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
@@ -22,7 +21,7 @@ export function ProfileEdit({ onSaved }: { onSaved: () => void }) {
     setMsg('');
     try {
       await api.updateProfile({ displayName, bio, website });
-      setMsg('Saved.');
+      setMsg('Saved ✓');
       onSaved();
     } catch (err) {
       setMsg((err as Error).message);
@@ -30,13 +29,19 @@ export function ProfileEdit({ onSaved }: { onSaved: () => void }) {
   }
 
   return (
-    <form className="profile-edit" onSubmit={submit}>
+    <form className="card form" onSubmit={submit}>
       <h3>Edit profile</h3>
-      <label>Display name<input value={displayName} onChange={(e) => setDisplayName(e.target.value)} /></label>
-      <label>Bio<textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={2} /></label>
-      <label>Website<input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." /></label>
+      <label>Display name
+        <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+      </label>
+      <label>Bio
+        <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={3} />
+      </label>
+      <label>Website
+        <input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." />
+      </label>
       {msg && <p className="muted">{msg}</p>}
-      <button type="submit">Save</button>
+      <button className="btn-primary" type="submit">Save changes</button>
     </form>
   );
 }

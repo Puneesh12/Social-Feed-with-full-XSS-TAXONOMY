@@ -34,6 +34,7 @@ export const api = {
   createPost: (body: string, linkUrl: string) =>
     req('POST', '/api/posts', { body, linkUrl }),
   profile: (username: string) => req('GET', `/api/profile/${encodeURIComponent(username)}`),
+  follow: (username: string) => req('POST', `/api/follow/${encodeURIComponent(username)}`),
   updateProfile: (p: { displayName: string; bio: string; website: string }) =>
     req('PUT', '/api/profile', p),
 };

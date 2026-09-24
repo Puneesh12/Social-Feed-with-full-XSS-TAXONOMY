@@ -7,9 +7,17 @@ import { Composer } from './components/Composer';
 import { Profile } from './components/Profile';
 import { ProfileEdit } from './components/ProfileEdit';
 import { Auth } from './components/Auth';
-import { DomSearchBanner } from './components/DomSearchBanner';
+import { Search } from './components/Search';
+import { Avatar } from './components/Avatar';
 
 interface Me { id: number; username: string; role: string; display_name: string }
+
+const NAV = [
+  { key: 'feed', label: 'Home', icon: '🏠', href: '#/feed' },
+  { key: 'search', label: 'Explore', icon: '🔍', href: '#/search?q=' },
+  { key: 'profile', label: 'Profile', icon: '👤', href: '#/profile' },
+  { key: 'settings', label: 'Settings', icon: '⚙️', href: '#/settings' },
+];
 
 export default function App() {
   const route = useHashRoute();
@@ -26,60 +34,109 @@ export default function App() {
   }
 
   const view = route.parts[0] || 'feed';
+  const titles: Record<string, string> = {
+    feed: 'Home', search: 'Explore', profile: 'Profile', settings: 'Settings', login: 'Sign in',
+  };
 
   return (
-    <div className="app">
-      <header className="app-bar">
-        <a className="brand" href="#/feed">🐦 Chirp</a>
-        <nav>
-          <a href="#/feed">Feed</a>
-          <a href="#/search?q=hello">Search</a>
-          {me && <a href={`#/profile/${me.username}`}>My profile</a>}
-          {me && <a href="#/settings">Settings</a>}
+    <div className="layout">
+      {/* ---------- Left sidebar ---------- */}
+      <aside className="sidebar">
+        <a className="brand" href="#/feed"><span className="brand-mark">🐦</span><span className="brand-txt">Chirp</span></a>
+        <nav className="nav">
+          {NAV.map((n) => {
+            const href = n.key === 'profile' && me ? `#/profile/${me.username}` : n.href;
+            return (
+              <a key={n.key} href={href} className={`nav-item ${view === n.key ? 'active' : ''}`}>
+                <span className="nav-ico">{n.icon}</span>
+                <span className="nav-label">{n.label}</span>
+              </a>
+            );
+          })}
         </nav>
-        <div className="right">
-          <span className={`mode-badge ${BUILD_MODE}`}>{BUILD_MODE} build</span>
-          {me ? (
-            <>
-              <span className="who">@{me.username}</span>
-              <button className="link-btn" onClick={logout}>Log out</button>
-            </>
-          ) : (
-            <a href="#/login">Log in</a>
-          )}
-        </div>
-      </header>
+        {me && <a className="btn-primary compose-btn" href="#/feed">Chirp</a>}
+        {me ? (
+          <button className="user-chip" onClick={logout} title="Log out">
+            <Avatar name={me.display_name || me.username} size={38} />
+            <span className="user-chip-txt">
+              <b>{me.display_name || me.username}</b>
+              <span className="muted">@{me.username}</span>
+            </span>
+            <span className="user-chip-more">⋯</span>
+          </button>
+        ) : (
+          <a className="btn-primary compose-btn" href="#/login">Log in</a>
+        )}
+      </aside>
 
-      <main className="content">
+      {/* ---------- Center column ---------- */}
+      <main className="main">
+        <header className="main-head">
+          <h1>{titles[view] || 'Chirp'}</h1>
+          <span className={`mode-badge ${BUILD_MODE}`}>{BUILD_MODE}</span>
+        </header>
+
         {view === 'feed' && (
           <>
-            {me && <Composer onPosted={() => setFeedKey((k) => k + 1)} />}
+            {me
+              ? <Composer me={me.display_name || me.username} onPosted={() => setFeedKey((k) => k + 1)} />
+              : <div className="signin-prompt card"><b>New to Chirp?</b> <a href="#/login">Sign in</a> to post.</div>}
             <Feed key={feedKey} />
           </>
         )}
 
-        {view === 'search' && (
-          <section className="search-view">
-            <DomSearchBanner term={route.query.q || ''} />
-            <p className="muted">
-              This client view demonstrates the DOM sink. The server-rendered
-              reflected page is at <a href={`/search?q=${encodeURIComponent(route.query.q || '')}`}>/search</a>.
-            </p>
-          </section>
-        )}
+        {view === 'search' && <Search term={route.query.q || ''} />}
 
-        {view === 'profile' && <Profile username={route.parts[1] || (me?.username ?? '')} />}
+        {view === 'profile' && <Profile username={route.parts[1] || (me?.username ?? '')} me={me?.username ?? null} />}
 
         {view === 'settings' && (me ? <ProfileEdit onSaved={() => setFeedKey((k) => k + 1)} /> : <Auth onAuth={refreshMe} />)}
 
-        {view === 'login' && (me ? <p>Already logged in as @{me.username}.</p> : <Auth onAuth={refreshMe} />)}
+        {view === 'login' && (me ? <p className="pad">You're logged in as @{me.username}.</p> : <Auth onAuth={refreshMe} />)}
       </main>
 
-      <footer className="app-foot">
-        Chirp — lab build for BCSE320L. {BUILD_MODE === 'vulnerable'
-          ? 'Intentionally vulnerable — do not deploy.'
-          : 'Defended build.'}
-      </footer>
+      {/* ---------- Right rail ---------- */}
+      <aside className="rail">
+        <form
+          className="search-bar"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const v = (e.currentTarget.elements.namedItem('q') as HTMLInputElement).value;
+            navigate(`/search?q=${encodeURIComponent(v)}`);
+          }}
+        >
+          <span className="search-ico">🔍</span>
+          <input name="q" placeholder="Search Chirp" defaultValue={route.query.q || ''} />
+        </form>
+
+        <div className="rail-card">
+          <h3>About this lab</h3>
+          <p className="muted small">
+            Chirp demonstrates the full XSS taxonomy — stored, reflected, DOM, mutation, and
+            <code> javascript:</code> URLs — with a one-switch defended build.
+          </p>
+          <p className={`mode-line ${BUILD_MODE}`}>
+            {BUILD_MODE === 'vulnerable'
+              ? '⚠ Vulnerable build active'
+              : '🛡 Defended build active'}
+          </p>
+        </div>
+
+        <div className="rail-card">
+          <h3>Who to follow</h3>
+          {['alice', 'bob', 'admin'].map((u) => (
+            <a key={u} className="who" href={`#/profile/${u}`}>
+              <Avatar name={u} size={38} />
+              <span className="who-txt"><b>{u}</b><span className="muted">@{u}</span></span>
+              <span className="who-follow">Follow</span>
+            </a>
+          ))}
+        </div>
+
+        <footer className="rail-foot muted small">
+          Chirp · BCSE320L lab · {BUILD_MODE} build<br />
+          {BUILD_MODE === 'vulnerable' ? 'Intentionally insecure — lab only.' : 'Hardened build.'}
+        </footer>
+      </aside>
     </div>
   );
 }
