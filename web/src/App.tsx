@@ -27,6 +27,14 @@ export default function App() {
   const [me, setMe] = useState<Me | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [feedKey, setFeedKey] = useState(0);
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem('chirp:nav') === '1'; } catch { return false; }
+  });
+  const toggleNav = () => setCollapsed((c) => {
+    const next = !c;
+    try { localStorage.setItem('chirp:nav', next ? '1' : '0'); } catch { /* ignore */ }
+    return next;
+  });
 
   const refreshMe = () =>
     api.me().then(setMe).catch(() => setMe(null)).finally(() => setAuthChecked(true));
@@ -56,12 +64,17 @@ export default function App() {
   };
 
   return (
-    <div className="layout">
+    <div className={`layout ${collapsed ? 'nav-collapsed' : ''}`}>
       {/* ---------- Left sidebar ---------- */}
       <aside className="sidebar">
-        <a className="brand" href="#/feed">
-          <span className="brand-mark">🐦</span><span className="brand-txt">Chirp</span>
-        </a>
+        <div className="brand-row">
+          <a className="brand" href="#/feed">
+            <span className="brand-mark">🐦</span><span className="brand-txt">Chirp</span>
+          </a>
+          <button className="nav-toggle" onClick={toggleNav} title={collapsed ? 'Expand menu' : 'Collapse menu'} aria-label="Toggle menu">
+            {collapsed ? '»' : '«'}
+          </button>
+        </div>
         <nav className="nav">
           {NAV.map((n) => {
             const href = n.key === 'profile' && me ? `#/profile/${me.username}` : n.href;
@@ -87,24 +100,28 @@ export default function App() {
       {/* ---------- Center column ---------- */}
       <main className="main">
         <header className="main-head">
-          <h1>{titles[view] || 'Chirp'}</h1>
-          <span className={`mode-badge ${BUILD_MODE}`}>{BUILD_MODE}</span>
+          <div className="main-inner main-head-inner">
+            <h1>{titles[view] || 'Chirp'}</h1>
+            <span className={`mode-badge ${BUILD_MODE}`}>{BUILD_MODE}</span>
+          </div>
         </header>
 
-        {view === 'feed' && (
-          <>
-            <Composer me={me.display_name || me.username} onPosted={() => setFeedKey((k) => k + 1)} />
-            <Feed key={feedKey} />
-          </>
-        )}
+        <div className="main-inner">
+          {view === 'feed' && (
+            <>
+              <Composer me={me.display_name || me.username} onPosted={() => setFeedKey((k) => k + 1)} />
+              <Feed key={feedKey} />
+            </>
+          )}
 
-        {view === 'search' && <Search term={route.query.q || ''} />}
+          {view === 'search' && <Search term={route.query.q || ''} />}
 
-        {view === 'profile' && <Profile username={route.parts[1] || me.username} me={me.username} />}
+          {view === 'profile' && <Profile username={route.parts[1] || me.username} me={me.username} />}
 
-        {view === 'settings' && <ProfileEdit onSaved={() => setFeedKey((k) => k + 1)} />}
+          {view === 'settings' && <ProfileEdit onSaved={() => setFeedKey((k) => k + 1)} />}
 
-        {view === 'login' && <p className="pad">You're logged in as @{me.username}.</p>}
+          {view === 'login' && <p className="pad">You're logged in as @{me.username}.</p>}
+        </div>
       </main>
 
       {/* ---------- Right rail ---------- */}
