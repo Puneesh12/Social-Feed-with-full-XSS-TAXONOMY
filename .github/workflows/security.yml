@@ -1,0 +1,39 @@
+# Static + build checks in CI (report §7.3 automation, §11.2 future work).
+name: security
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  semgrep:
+    name: Semgrep static analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/owasp-top-ten
+            p/javascript
+            p/react
+
+  build:
+    name: Build both modes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: API deps
+        working-directory: api
+        run: npm install --omit=dev
+      - name: Web build (vulnerable)
+        working-directory: web
+        run: npm install && VITE_BUILD_MODE=vulnerable npm run build
+      - name: Web build (defended)
+        working-directory: web
+        run: VITE_BUILD_MODE=defended npm run build

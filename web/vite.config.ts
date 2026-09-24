@@ -1,0 +1,16 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+// In dev, proxy API + server-rendered pages to the Express container/host so the
+// SPA and API share an origin (cookies work).
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': 'http://localhost:3000',
+      '/search': 'http://localhost:3000',
+      '/render': 'http://localhost:3000',
+    },
+  },
+});
