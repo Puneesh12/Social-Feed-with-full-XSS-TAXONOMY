@@ -72,10 +72,10 @@ function Lighthouse() {
 }
 
 export function Landing() {
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
 
   return (
-    <div className={`lp ${dark ? 'lp-dark' : ''}`}>
+    <div className={`lp ${dark ? '' : 'lp-light'}`}>
       {/* Nav */}
       <header className="lp-nav">
         <a className="lp-logo" href="#/">
