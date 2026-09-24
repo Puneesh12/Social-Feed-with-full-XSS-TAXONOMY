@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { api } from '../api';
 import { BUILD_MODE } from '../build';
 
-// Full-screen sign-in / sign-up page shown BEFORE the app loads (Instagram
-// style). The rest of the app is gated behind this in App.tsx.
+// Full-screen sign-in / sign-up page (lighthouse art left, form right).
 export function AuthPage({ onAuth, initialMode = 'login' }: { onAuth: () => void; initialMode?: 'login' | 'register' }) {
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [username, setUsername] = useState('');
@@ -30,11 +29,11 @@ export function AuthPage({ onAuth, initialMode = 'login' }: { onAuth: () => void
 
   return (
     <div className="authpage">
-      {/* Left brand panel (hidden on small screens) */}
+      {/* Left: lighthouse illustration + overlaid copy */}
       <aside className="authpage-brand">
         <div className="authpage-brand-inner">
           <div className="authpage-logo"><span>🐦</span> Chirp</div>
-          <h1>Share what's happening.</h1>
+          <h1 className="authpage-serif">Share what's happening.</h1>
           <p>A tiny social feed — post, follow, and explore.</p>
           <div className={`authpage-modechip ${BUILD_MODE}`}>
             {BUILD_MODE === 'vulnerable' ? '⚠️ Vulnerable build (lab)' : '🛡️ Defended build'}
@@ -42,37 +41,45 @@ export function AuthPage({ onAuth, initialMode = 'login' }: { onAuth: () => void
         </div>
       </aside>
 
-      {/* Right auth card */}
+      {/* Right: form card */}
       <main className="authpage-main">
         <form className="authpage-card" onSubmit={submit}>
           <a className="authpage-back" href="#/">← Back to home</a>
-          <div className="authpage-card-logo"><span>🐦</span> Chirp</div>
-          <h2>{mode === 'login' ? 'Log in to your account' : 'Create your account'}</h2>
+          <h2 className="authpage-serif">{mode === 'login' ? 'Log in to your account' : 'Create your account'}</h2>
           <p className="authpage-sub">
             {mode === 'login' ? 'Welcome back! Please enter your details.' : 'Join Chirp in a few seconds.'}
           </p>
 
           <label className="fld">
             <span>Username</span>
-            <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="e.g. alice" autoFocus autoComplete="username" />
+            <span className="fld-wrap">
+              <svg className="fld-ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4.4 0-8 2.4-8 5.5V21h16v-1.5c0-3.1-3.6-5.5-8-5.5z" /></svg>
+              <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="e.g. alice" autoFocus autoComplete="username" />
+            </span>
           </label>
 
           {mode === 'register' && (
             <label className="fld">
               <span>Display name</span>
-              <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
+              <span className="fld-wrap">
+                <svg className="fld-ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M4 20a8 8 0 0 1 16 0z M12 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8z" /></svg>
+                <input value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name" />
+              </span>
             </label>
           )}
 
           <label className="fld">
             <span>Password</span>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
+            <span className="fld-wrap">
+              <svg className="fld-ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 1 1 6 0v3z" /></svg>
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" autoComplete={mode === 'login' ? 'current-password' : 'new-password'} />
+            </span>
           </label>
 
           {error && <p className="error">{error}</p>}
 
-          <button className="btn-primary full big" type="submit" disabled={busy}>
-            {busy ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Sign up'}
+          <button className="authpage-submit" type="submit" disabled={busy}>
+            {busy ? 'Please wait…' : mode === 'login' ? 'Log in' : 'Sign up'} <span className="arrow">→</span>
           </button>
 
           <div className="authpage-divider"><span>OR</span></div>
