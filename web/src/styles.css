@@ -454,38 +454,42 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent); box-sh
   .main { border: none; padding-bottom: 84px; }
 }
 
-/* ---------- Onboarding tour ---------- */
+/* ---------- Onboarding tour (bottom coach card) ---------- */
 .onb-overlay {
-  position: fixed; inset: 0; z-index: 100;
-  background: rgba(15, 45, 40, .55); backdrop-filter: blur(4px);
-  display: flex; align-items: center; justify-content: center; padding: 20px;
+  position: fixed; inset: 0; z-index: 100; pointer-events: none;
+  display: flex; align-items: flex-end; justify-content: center; padding: 24px;
   animation: onb-fade .2s ease;
 }
+/* subtle vignette so the card stands out but the app stays visible */
+.onb-overlay::before { content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(15,45,40,.28), rgba(15,45,40,0) 42%); }
 @keyframes onb-fade { from { opacity: 0; } to { opacity: 1; } }
 .onb-card {
-  position: relative; width: 100%; max-width: 440px; text-align: center;
-  background: var(--card); border: 1px solid var(--border); border-radius: 24px;
-  padding: 40px 32px 28px; box-shadow: 0 30px 70px rgba(15,45,40,.35);
+  position: relative; pointer-events: auto; width: 100%; max-width: 560px; text-align: left;
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  padding: 22px 24px; box-shadow: 0 24px 60px rgba(15,45,40,.35);
+  display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto auto; column-gap: 16px; row-gap: 10px;
   animation: onb-pop .25s cubic-bezier(.2,.8,.2,1);
 }
-@keyframes onb-pop { from { transform: translateY(12px) scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
-.onb-skip { position: absolute; top: 16px; right: 18px; background: none; border: none; color: var(--muted); font-weight: 600; cursor: pointer; font-size: 14px; }
+@keyframes onb-pop { from { transform: translateY(14px); opacity: 0; } to { transform: none; opacity: 1; } }
+.onb-skip { position: absolute; top: 14px; right: 16px; background: none; border: none; color: var(--muted); font-weight: 600; cursor: pointer; font-size: 13px; }
 .onb-skip:hover { color: var(--text); }
 .onb-icon {
-  width: 76px; height: 76px; margin: 0 auto 18px; border-radius: 20px; font-size: 38px;
+  grid-row: 1 / 3; width: 54px; height: 54px; border-radius: 15px; font-size: 27px;
   display: flex; align-items: center; justify-content: center;
   background: #e3f2f0; border: 1px solid #cfe9e6;
 }
-.onb-title { font-family: "DM Serif Display", Georgia, serif; font-weight: 400; font-size: 28px; margin: 0 0 10px; color: var(--text); }
-.onb-body { color: var(--muted); line-height: 1.6; font-size: 15px; margin: 0 0 22px; }
-.onb-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 22px; }
-.onb-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--border); cursor: pointer; transition: all .2s; }
-.onb-dot.active { width: 22px; background: var(--accent); }
-.onb-actions { display: flex; gap: 10px; justify-content: center; }
-.onb-back { background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 12px; padding: 12px 20px; font-weight: 700; cursor: pointer; }
+.onb-title { font-family: "DM Serif Display", Georgia, serif; font-weight: 400; font-size: 22px; margin: 2px 40px 0 0; color: var(--text); }
+.onb-body { grid-column: 2; color: var(--muted); line-height: 1.55; font-size: 14px; margin: 0; }
+.onb-dots { grid-column: 1 / 3; display: flex; gap: 7px; align-items: center; margin-top: 4px; }
+.onb-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--border); cursor: pointer; transition: all .2s; }
+.onb-dot.active { width: 20px; background: var(--accent); }
+.onb-actions { grid-column: 1 / 3; display: flex; gap: 10px; justify-content: flex-end; align-items: center; }
+.onb-hello { grid-column: 1 / 3; margin: 0; color: var(--muted); font-size: 12px; }
+.onb-back { background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 10px 18px; font-weight: 700; cursor: pointer; }
 .onb-back:hover { border-color: var(--accent); color: var(--accent); }
-.onb-next { display: inline-flex; align-items: center; gap: 8px; background: #12554e; color: #fff; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 15px; cursor: pointer; }
+.onb-next { display: inline-flex; align-items: center; gap: 8px; background: #12554e; color: #fff; border: none; border-radius: 10px; padding: 10px 22px; font-weight: 700; font-size: 15px; cursor: pointer; }
 .onb-next:hover { background: #0e463f; }
 .onb-next .arrow { transition: transform .15s; }
 .onb-next:hover .arrow { transform: translateX(3px); }
-.onb-hello { margin: 18px 0 0; color: var(--muted); font-size: 13px; }
+@media (max-width: 560px) { .onb-actions { justify-content: space-between; } }
