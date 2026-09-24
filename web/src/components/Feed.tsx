@@ -5,7 +5,7 @@ import { Avatar } from './Avatar';
 import { timeAgo } from '../time';
 
 export interface Post {
-  id: number;
+  id: string;
   body: string;
   link_url: string;
   username: string;
@@ -13,8 +13,16 @@ export interface Post {
   created_at: string;
 }
 
+// Stable pseudo-count from a post id (works for Mongo string ids).
+function hashNum(id: string): number {
+  let h = 0;
+  for (let i = 0; i < String(id).length; i++) h = (h * 31 + String(id).charCodeAt(i)) >>> 0;
+  return h;
+}
+
 export function PostCard({ p }: { p: Post }) {
   const name = p.display_name || p.username;
+  const n = hashNum(p.id);
   return (
     <article className="post">
       <a className="post-avatar" href={`#/profile/${p.username}`}>
@@ -38,10 +46,10 @@ export function PostCard({ p }: { p: Post }) {
           </a>
         )}
         <div className="post-actions">
-          <span className="act">💬 <b>{p.id % 7}</b></span>
-          <span className="act">🔁 <b>{p.id % 4}</b></span>
-          <span className="act">♥ <b>{p.id % 11}</b></span>
-          <span className="act">📊 <b>{(p.id * 13) % 90}</b></span>
+          <span className="act">💬 <b>{n % 7}</b></span>
+          <span className="act">🔁 <b>{n % 4}</b></span>
+          <span className="act">♥ <b>{n % 11}</b></span>
+          <span className="act">📊 <b>{(n >> 3) % 90}</b></span>
         </div>
       </div>
     </article>

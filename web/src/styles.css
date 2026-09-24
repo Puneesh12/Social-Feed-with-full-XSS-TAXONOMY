@@ -293,6 +293,7 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent); box-sh
 
 .lp-hero-art { position: relative; }
 .lp-illus { width: 100%; height: auto; display: block; }
+.lp-photo { width: 100%; height: auto; display: block; border-radius: 18px; border: 1px solid var(--lp-line); box-shadow: 0 20px 50px rgba(0,0,0,.35); }
 .lp-mode { position: absolute; top: 8px; right: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; padding: 5px 12px; border-radius: 999px; }
 .lp-mode.vulnerable { background: rgba(192,57,43,.16); color: #ff8a80; border: 1px solid rgba(192,57,43,.4); }
 .lp-mode.defended { background: rgba(31,122,77,.18); color: #6ee7b7; border: 1px solid rgba(31,122,77,.4); }

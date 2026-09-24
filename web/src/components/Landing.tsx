@@ -116,7 +116,7 @@ export function Landing() {
           </div>
         </div>
         <div className="lp-hero-art">
-          <Lighthouse />
+          <img className="lp-photo" src="/lighthouse.webp" alt="Lighthouse on the coast" loading="eager" />
           <span className={`lp-mode ${BUILD_MODE}`}>{BUILD_MODE} build</span>
         </div>
       </section>
