@@ -5,11 +5,15 @@ import { navigate } from '../router';
 // Clickable, self-explaining guide to the five XSS demos. Each item explains
 // what the attack is, where it lives in Chirp, and (in defended mode) what stops
 // it — so the panel reads as documentation, not just buttons.
-const STORED = `<img src=x onerror=alert('stored XSS!')>`;
-const JSURL = `javascript:alert(document.domain)`;
-const DOMQ = `<img src=x onerror=alert('DOM XSS!')>`;
-const REFQ = `<script>alert('reflected XSS!')</script>`;
-const MUT = `<noscript><p title="</noscript><img src=x onerror=alert('mutation XSS!')>`;
+// A visible marker so the demo is obvious even when the browser blocks alert():
+// it turns the page red and sets the tab title. alert() still fires in a normal
+// browser as the classic proof.
+const MARK = "document.body.style.background='#c0392b';document.title='XSS executed'";
+const STORED = `<img src=x onerror="alert('stored XSS!');${MARK}">`;
+const JSURL = `javascript:alert(document.domain),${MARK}`;
+const DOMQ = `<img src=x onerror="alert('DOM XSS!');${MARK}">`;
+const REFQ = `<script>alert('reflected XSS!');${MARK}</script>`;
+const MUT = `<noscript><p title="</noscript><img src=x onerror="alert('mutation XSS!');${MARK}">`;
 
 interface Item {
   n: number;
