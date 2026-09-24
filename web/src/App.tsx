@@ -10,14 +10,15 @@ import { Auth } from './components/Auth';
 import { Search } from './components/Search';
 import { Avatar } from './components/Avatar';
 import { LabGuide } from './components/LabGuide';
+import { Icon } from './components/Icon';
 
 interface Me { id: number; username: string; role: string; display_name: string }
 
 const NAV = [
-  { key: 'feed', label: 'Home', icon: '🏠', href: '#/feed' },
-  { key: 'search', label: 'Explore', icon: '🔍', href: '#/search?q=' },
-  { key: 'profile', label: 'Profile', icon: '👤', href: '#/profile' },
-  { key: 'settings', label: 'Settings', icon: '⚙️', href: '#/settings' },
+  { key: 'feed', label: 'Home', icon: 'home', href: '#/feed' },
+  { key: 'search', label: 'Explore', icon: 'explore', href: '#/search?q=' },
+  { key: 'profile', label: 'Profile', icon: 'profile', href: '#/profile' },
+  { key: 'settings', label: 'Settings', icon: 'settings', href: '#/settings' },
 ];
 
 export default function App() {
@@ -43,22 +44,24 @@ export default function App() {
     <div className="layout">
       {/* ---------- Left sidebar ---------- */}
       <aside className="sidebar">
-        <a className="brand" href="#/feed"><span className="brand-mark">🐦</span><span className="brand-txt">Chirp</span></a>
+        <a className="brand" href="#/feed">
+          <span className="brand-mark">🐦</span><span className="brand-txt">Chirp</span>
+        </a>
         <nav className="nav">
           {NAV.map((n) => {
             const href = n.key === 'profile' && me ? `#/profile/${me.username}` : n.href;
             return (
-              <a key={n.key} href={href} className={`nav-item ${view === n.key ? 'active' : ''}`}>
-                <span className="nav-ico">{n.icon}</span>
+              <a key={n.key} href={href} className={`nav-item ${view === n.key ? 'active' : ''}`} title={n.label}>
+                <span className="nav-ico"><Icon name={n.icon} /></span>
                 <span className="nav-label">{n.label}</span>
               </a>
             );
           })}
         </nav>
-        {me && <a className="btn-primary compose-btn" href="#/feed">Chirp</a>}
+        {me && <a className="btn-compose" href="#/feed">Chirp</a>}
         {me ? (
           <button className="user-chip" onClick={logout} title="Log out">
-            <Avatar name={me.display_name || me.username} size={38} />
+            <Avatar name={me.display_name || me.username} size={36} />
             <span className="user-chip-txt">
               <b>{me.display_name || me.username}</b>
               <span className="muted">@{me.username}</span>
@@ -66,7 +69,7 @@ export default function App() {
             <span className="user-chip-more">⋯</span>
           </button>
         ) : (
-          <a className="btn-primary compose-btn" href="#/login">Log in</a>
+          <a className="btn-compose" href="#/login">Log in</a>
         )}
       </aside>
 
