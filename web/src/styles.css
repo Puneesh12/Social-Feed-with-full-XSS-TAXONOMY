@@ -280,23 +280,36 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent); box-sh
 .lp-moon { width: 40px; height: 40px; border-radius: 8px; border: 1px solid var(--lp-ghost-bd); background: var(--lp-ghost-bg); color: var(--lp-ink); cursor: pointer; font-size: 15px; }
 .lp-moon:hover { border-color: var(--lp-teal-hover); color: var(--lp-teal-hover); }
 
-/* hero */
-.lp-hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 30px; align-items: center; max-width: 1280px; margin: 0 auto; padding: 46px 6vw 64px; }
-.lp-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--lp-card); border: 1px solid var(--lp-line); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--lp-ink-soft); margin-bottom: 28px; }
+/* hero (full-bleed illustration background) */
+.lp-hero-bg {
+  position: relative;
+  min-height: 92vh;
+  background-image: url('/lighthouse.webp');
+  background-size: cover;
+  background-position: right center;
+  background-repeat: no-repeat;
+  background-color: #f2ede0;
+  display: flex; flex-direction: column;
+}
+/* legibility wash on the text (left) side; theme-aware */
+.lp-hero-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: linear-gradient(100deg, rgba(244,239,227,.96) 0%, rgba(244,239,227,.82) 34%, rgba(244,239,227,.35) 56%, rgba(244,239,227,0) 74%);
+}
+.lp:not(.lp-light) .lp-hero-overlay {
+  background: linear-gradient(100deg, rgba(9,13,15,.92) 0%, rgba(9,13,15,.78) 36%, rgba(9,13,15,.3) 58%, rgba(9,13,15,0) 78%);
+}
+.lp-hero-bg .lp-nav { position: relative; z-index: 2; }
+.lp-hero-inner { position: relative; z-index: 1; flex: 1; display: flex; align-items: center;
+  max-width: 1280px; width: 100%; margin: 0 auto; padding: 10px 6vw 70px; }
+.lp-hero-text { max-width: 600px; }
+.lp-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--lp-card); border: 1px solid var(--lp-line); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 600; color: var(--lp-ink-soft); margin-bottom: 26px; }
 .lp-badge-dot { font-size: 14px; }
-.lp-hero h1 { font-size: 76px; line-height: 1.02; letter-spacing: -2.1px; margin: 0 0 24px; font-weight: 600; color: var(--lp-ink); }
-.lp-hero p { font-size: 18px; line-height: 1.62; color: var(--lp-ink-soft); max-width: 468px; margin: 0 0 32px; }
+.lp-hero-text h1 { font-size: 74px; line-height: 1.02; letter-spacing: -2.1px; margin: 0 0 22px; font-weight: 600; color: var(--lp-ink); }
+.lp-hero-text p { font-size: 18px; line-height: 1.62; color: var(--lp-ink-soft); max-width: 460px; margin: 0 0 30px; font-weight: 500; }
 .lp-cta { display: flex; gap: 12px; flex-wrap: wrap; }
-.lp-trusted { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 44px; }
+.lp-trusted { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 42px; }
 .lp-trusted-label { font-size: 12px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; color: var(--lp-ink-soft); margin-right: 4px; }
-.lp-chip { font-size: 13px; font-weight: 600; color: var(--lp-body); background: var(--lp-card); border: 1px solid var(--lp-line); padding: 6px 12px; border-radius: 999px; }
-
-.lp-hero-art { position: relative; }
-.lp-illus { width: 100%; height: auto; display: block; }
-.lp-photo { width: 100%; height: auto; display: block; border-radius: 18px; border: 1px solid var(--lp-line); box-shadow: 0 20px 50px rgba(0,0,0,.35); }
-.lp-mode { position: absolute; top: 8px; right: 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; padding: 5px 12px; border-radius: 999px; }
-.lp-mode.vulnerable { background: rgba(192,57,43,.16); color: #ff8a80; border: 1px solid rgba(192,57,43,.4); }
-.lp-mode.defended { background: rgba(31,122,77,.18); color: #6ee7b7; border: 1px solid rgba(31,122,77,.4); }
+.lp-chip { font-size: 13px; font-weight: 600; color: var(--lp-ink); background: var(--lp-card); border: 1px solid var(--lp-line); padding: 6px 12px; border-radius: 999px; }
 
 /* features */
 .lp-band { max-width: 1280px; margin: 0 auto; padding: 24px 6vw 60px; }

@@ -72,52 +72,51 @@ function Lighthouse() {
 }
 
 export function Landing() {
-  const [dark, setDark] = useState(true);
+  const [dark, setDark] = useState(false);
 
   return (
     <div className={`lp ${dark ? '' : 'lp-light'}`}>
-      {/* Nav */}
-      <header className="lp-nav">
-        <a className="lp-logo" href="#/">
-          <span className="lp-logo-mark">🐦</span> Chirp
-        </a>
-        <nav className="lp-links">
-          <a href="#/signup">Features</a>
-          <a href="https://github.com/Puneesh12/Social-Feed-with-full-XSS-TAXONOMY" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="#/login">The Lab</a>
-        </nav>
-        <div className="lp-nav-cta">
-          <a className="lp-ghost" href="#/login">Log in</a>
-          <a className="lp-solid" href="#/signup">Get started</a>
-          <button className="lp-moon" onClick={() => setDark((d) => !d)} aria-label="Toggle theme">
-            {dark ? '☀' : '☾'}
-          </button>
-        </div>
-      </header>
+      {/* Hero with full-bleed illustration background */}
+      <section className="lp-hero-bg">
+        <div className="lp-hero-overlay" />
 
-      {/* Hero */}
-      <section className="lp-hero">
-        <div className="lp-hero-text">
-          <span className="lp-badge"><span className="lp-badge-dot">🛡</span> A hands-on web-security lab</span>
-          <h1>
-            Social feed,<br />built to be <span className="lp-italic">hacked.</span>
-          </h1>
-          <p>
-            Chirp is a full Twitter-style app that ships in two builds from one code base — a deliberately
-            vulnerable one you can break, and a defended one that blocks every attack. Learn XSS by doing.
-          </p>
-          <div className="lp-cta">
-            <a className="lp-solid big" href="#/signup">Get started</a>
-            <a className="lp-outline big" href="#/login">Try the demo</a>
+        <header className="lp-nav">
+          <a className="lp-logo" href="#/">
+            <span className="lp-logo-mark">🐦</span> Chirp
+          </a>
+          <nav className="lp-links">
+            <a href="#/signup">Features</a>
+            <a href="https://github.com/Puneesh12/Social-Feed-with-full-XSS-TAXONOMY" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="#/login">The Lab</a>
+          </nav>
+          <div className="lp-nav-cta">
+            <a className="lp-ghost" href="#/login">Log in</a>
+            <a className="lp-solid" href="#/signup">Get started</a>
+            <button className="lp-moon" onClick={() => setDark((d) => !d)} aria-label="Toggle theme">
+              {dark ? '☀' : '☾'}
+            </button>
           </div>
-          <div className="lp-trusted">
-            <span className="lp-trusted-label">Covers</span>
-            {COVERS.map((c) => <span className="lp-chip" key={c}>{c}</span>)}
+        </header>
+
+        <div className="lp-hero-inner">
+          <div className="lp-hero-text">
+            <span className="lp-badge"><span className="lp-badge-dot">🛡</span> A hands-on web-security lab</span>
+            <h1>
+              Social feed,<br />built to be <span className="lp-italic">hacked.</span>
+            </h1>
+            <p>
+              Chirp is a full Twitter-style app that ships in two builds from one code base — a deliberately
+              vulnerable one you can break, and a defended one that blocks every attack. Learn XSS by doing.
+            </p>
+            <div className="lp-cta">
+              <a className="lp-solid big" href="#/signup">Get started</a>
+              <a className="lp-outline big" href="#/login">Try the demo</a>
+            </div>
+            <div className="lp-trusted">
+              <span className="lp-trusted-label">Covers</span>
+              {COVERS.map((c) => <span className="lp-chip" key={c}>{c}</span>)}
+            </div>
           </div>
-        </div>
-        <div className="lp-hero-art">
-          <img className="lp-photo" src="/lighthouse.webp" alt="Lighthouse on the coast" loading="eager" />
-          <span className={`lp-mode ${BUILD_MODE}`}>{BUILD_MODE} build</span>
         </div>
       </section>
 
