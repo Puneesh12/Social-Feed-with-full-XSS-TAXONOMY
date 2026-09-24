@@ -1,0 +1,101 @@
+<svg viewBox="0 0 1040 720" xmlns="http://www.w3.org/2000/svg" font-family="'DM Sans','Segoe UI',Arial,sans-serif">
+  <defs>
+    <marker id="arss" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0 0L9 4.5L0 9z" fill="#0c928f"/>
+    </marker>
+    <marker id="arg" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0 0L9 4.5L0 9z" fill="#8a8073"/>
+    </marker>
+    <style>
+      .t{fill:#133b36;font-weight:700}.s{fill:#5c706b;font-size:12px}.h{fill:#133b36;font-weight:800}
+      .lbl{fill:#0c928f;font-weight:800;font-size:12px;letter-spacing:.5px}
+      .box{fill:#fff;stroke:#e0d7c6;rx:12}.mono{font-family:'DM Mono',monospace}
+    </style>
+  </defs>
+
+  <rect width="1040" height="720" fill="#f4efe3"/>
+  <text x="40" y="46" font-size="26" class="h">Chirp — how it's linked together</text>
+  <text x="40" y="70" class="s" font-size="14">One code base → one switch (BUILD_MODE) → two builds that share everything except the security controls.</text>
+
+  <!-- ONE CODE BASE -->
+  <rect x="40" y="96" width="470" height="300" rx="16" fill="#eef6f4" stroke="#cfe9e6"/>
+  <text x="60" y="124" class="lbl">ONE CODE BASE (one repo)</text>
+
+  <!-- shared -->
+  <rect x="60" y="138" width="430" height="120" rx="12" fill="#fff" stroke="#e0d7c6"/>
+  <text x="76" y="160" class="t" font-size="14">Shared — identical in both builds</text>
+  <text x="76" y="184" class="s">• React + Vite SPA — feed, profile, search, onboarding, UI</text>
+  <text x="76" y="204" class="s">• Express routes, MongoDB access, auth, sessions</text>
+  <text x="76" y="224" class="s">• Nginx config, Docker Compose, seed data</text>
+  <text x="76" y="244" class="s">→ features &amp; look are the same, so the demo is a fair comparison</text>
+
+  <!-- control files -->
+  <rect x="60" y="268" width="430" height="110" rx="12" fill="#fff8ec" stroke="#e7d9b6"/>
+  <text x="76" y="290" class="t" font-size="14">The ONLY difference — two control points</text>
+  <text x="76" y="312" class="s mono" fill="#b4532f">api/src/security.js</text>
+  <text x="230" y="312" class="s">— encode / CSP / DOMPurify / URL allow-list</text>
+  <text x="76" y="332" class="s mono" fill="#b4532f">web/src/render.tsx</text>
+  <text x="230" y="332" class="s">— innerHTML vs textContent (the sink)</text>
+  <text x="76" y="358" class="s">Both read <tspan class="mono" fill="#0c928f">BUILD_MODE</tspan> to pick vulnerable or defended behaviour.</text>
+
+  <!-- switch -->
+  <circle cx="560" cy="246" r="34" fill="#12554e"/>
+  <text x="560" y="242" text-anchor="middle" fill="#fff" font-size="11" font-weight="800">BUILD</text>
+  <text x="560" y="256" text-anchor="middle" fill="#fff" font-size="11" font-weight="800">_MODE</text>
+  <path d="M510 246H522" stroke="#0c928f" stroke-width="2.5" marker-end="url(#arss)"/>
+
+  <path d="M594 232 H636 V150 H660" fill="none" stroke="#0c928f" stroke-width="2.5" marker-end="url(#arss)"/>
+  <path d="M594 260 H636 V150" fill="none" stroke="none"/>
+  <path d="M594 260 H636 V520 H660" fill="none" stroke="#0c928f" stroke-width="2.5" marker-end="url(#arss)"/>
+  <text x="642" y="140" class="s" font-size="11">=vulnerable</text>
+  <text x="642" y="512" class="s" font-size="11">=defended</text>
+
+  <!-- VULNERABLE build stack -->
+  <g>
+    <rect x="660" y="110" width="340" height="220" rx="16" fill="#fdecec" stroke="#f2c9c9"/>
+    <text x="678" y="136" class="lbl" fill="#c0392b">VULNERABLE BUILD → localhost:8080</text>
+    <g transform="translate(678,150)">
+      <rect class="box" x="0" y="0" width="150" height="40" fill="#fff" stroke="#e0d7c6" rx="10"/>
+      <text x="12" y="25" class="s">Browser (SPA)</text>
+      <rect x="170" y="0" width="140" height="40" fill="#fff" stroke="#e0d7c6" rx="10"/>
+      <text x="182" y="25" class="s">Nginx edge</text>
+      <path d="M150 20H170" stroke="#8a8073" stroke-width="2" marker-end="url(#arg)"/>
+
+      <rect x="0" y="58" width="150" height="40" fill="#fff" stroke="#e0d7c6" rx="10"/>
+      <text x="12" y="83" class="s">Express API</text>
+      <rect x="170" y="58" width="140" height="40" fill="#fff" stroke="#e0d7c6" rx="10"/>
+      <text x="182" y="83" class="s">MongoDB</text>
+      <path d="M150 78H170" stroke="#8a8073" stroke-width="2" marker-end="url(#arg)"/>
+      <path d="M240 40V58" stroke="#8a8073" stroke-width="2" marker-end="url(#arg)"/>
+
+      <rect x="0" y="116" width="310" height="34" fill="#fff" stroke="#f2c9c9" rx="10"/>
+      <text x="12" y="138" class="s" fill="#c0392b">payload runs → cookie stolen → Collector :9000</text>
+    </g>
+  </g>
+
+  <!-- DEFENDED build stack -->
+  <g>
+    <rect x="660" y="480" width="340" height="220" rx="16" fill="#e9f6ee" stroke="#bfe3cd"/>
+    <text x="678" y="506" class="lbl" fill="#1f7a4d">DEFENDED BUILD → localhost:8081</text>
+    <g transform="translate(678,520)">
+      <rect x="0" y="0" width="150" height="40" fill="#fff" stroke="#e0d7c6" rx="10"/>
+      <text x="12" y="25" class="s">Browser (SPA)</text>
+      <rect x="170" y="0" width="140" height="40" fill="#fff" stroke="#e0d7c6" rx="10"/>
+      <text x="182" y="25" class="s">Nginx + CSP</text>
+      <path d="M150 20H170" stroke="#8a8073" stroke-width="2" marker-end="url(#arg)"/>
+
+      <rect x="0" y="58" width="150" height="40" fill="#fff" stroke="#e0d7c6" rx="10"/>
+      <text x="12" y="83" class="s">Express API</text>
+      <rect x="170" y="58" width="140" height="40" fill="#fff" stroke="#e0d7c6" rx="10"/>
+      <text x="182" y="83" class="s">MongoDB</text>
+      <path d="M150 78H170" stroke="#8a8073" stroke-width="2" marker-end="url(#arg)"/>
+      <path d="M240 40V58" stroke="#8a8073" stroke-width="2" marker-end="url(#arg)"/>
+
+      <rect x="0" y="116" width="310" height="34" fill="#fff" stroke="#bfe3cd" rx="10"/>
+      <text x="12" y="138" class="s" fill="#1f7a4d">encoded / sanitised → nothing runs → Collector empty</text>
+    </g>
+  </g>
+
+  <text x="40" y="430" class="s" font-size="12.5">Presentation: <tspan class="mono" fill="#0c928f">./scripts/demo-up.sh</tspan> runs both stacks at once (isolated Docker projects) so you can show them side by side.</text>
+  <text x="40" y="452" class="s" font-size="12.5">Same login, same feed, same UI — flip the switch and the identical payload goes from "fires" to "blocked."</text>
+</svg>
