@@ -4,7 +4,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
-import { RedisStore } from 'connect-redis';
+import RedisStore from 'connect-redis';
 import { createClient } from 'redis';
 import rateLimit from 'express-rate-limit';
 
