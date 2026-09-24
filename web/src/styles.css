@@ -452,3 +452,39 @@ input:focus, textarea:focus { outline: none; border-color: var(--accent); box-sh
   .nav-label { display: none; }
   .main { border: none; padding-bottom: 84px; }
 }
+
+/* ---------- Onboarding tour ---------- */
+.onb-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(15, 45, 40, .55); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+  animation: onb-fade .2s ease;
+}
+@keyframes onb-fade { from { opacity: 0; } to { opacity: 1; } }
+.onb-card {
+  position: relative; width: 100%; max-width: 440px; text-align: center;
+  background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+  padding: 40px 32px 28px; box-shadow: 0 30px 70px rgba(15,45,40,.35);
+  animation: onb-pop .25s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes onb-pop { from { transform: translateY(12px) scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+.onb-skip { position: absolute; top: 16px; right: 18px; background: none; border: none; color: var(--muted); font-weight: 600; cursor: pointer; font-size: 14px; }
+.onb-skip:hover { color: var(--text); }
+.onb-icon {
+  width: 76px; height: 76px; margin: 0 auto 18px; border-radius: 20px; font-size: 38px;
+  display: flex; align-items: center; justify-content: center;
+  background: #e3f2f0; border: 1px solid #cfe9e6;
+}
+.onb-title { font-family: "DM Serif Display", Georgia, serif; font-weight: 400; font-size: 28px; margin: 0 0 10px; color: var(--text); }
+.onb-body { color: var(--muted); line-height: 1.6; font-size: 15px; margin: 0 0 22px; }
+.onb-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 22px; }
+.onb-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--border); cursor: pointer; transition: all .2s; }
+.onb-dot.active { width: 22px; background: var(--accent); }
+.onb-actions { display: flex; gap: 10px; justify-content: center; }
+.onb-back { background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 12px; padding: 12px 20px; font-weight: 700; cursor: pointer; }
+.onb-back:hover { border-color: var(--accent); color: var(--accent); }
+.onb-next { display: inline-flex; align-items: center; gap: 8px; background: #12554e; color: #fff; border: none; border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 15px; cursor: pointer; }
+.onb-next:hover { background: #0e463f; }
+.onb-next .arrow { transition: transform .15s; }
+.onb-next:hover .arrow { transform: translateX(3px); }
+.onb-hello { margin: 18px 0 0; color: var(--muted); font-size: 13px; }

@@ -12,6 +12,7 @@ import { LabGuide } from './components/LabGuide';
 import { Icon } from './components/Icon';
 import { AuthPage } from './components/AuthPage';
 import { Landing } from './components/Landing';
+import { Onboarding } from './components/Onboarding';
 
 interface Me { id: number; username: string; role: string; display_name: string }
 
@@ -35,6 +36,7 @@ export default function App() {
     try { localStorage.setItem('chirp:nav', next ? '1' : '0'); } catch { /* ignore */ }
     return next;
   });
+  const [onboard, setOnboard] = useState(false);
 
   const refreshMe = () =>
     api.me().then(setMe).catch(() => setMe(null)).finally(() => setAuthChecked(true));
@@ -46,6 +48,19 @@ export default function App() {
       navigate('/feed');
     }
   }, [authChecked, me, route.path]);
+
+  // First-time onboarding tour (once per user, remembered in localStorage).
+  useEffect(() => {
+    if (!me) return;
+    try {
+      if (!localStorage.getItem(`chirp:onboarded:${me.username}`)) setOnboard(true);
+    } catch { /* ignore */ }
+  }, [me]);
+
+  function dismissOnboard() {
+    setOnboard(false);
+    if (me) { try { localStorage.setItem(`chirp:onboarded:${me.username}`, '1'); } catch { /* ignore */ } }
+  }
 
   // Gate: nothing loads until we know if you're logged in (avoids a flash).
   if (!authChecked) {
@@ -72,6 +87,7 @@ export default function App() {
 
   return (
     <div className={`layout ${collapsed ? 'nav-collapsed' : ''}`}>
+      {onboard && <Onboarding username={me.username} onClose={dismissOnboard} />}
       {/* ---------- Left sidebar ---------- */}
       <aside className="sidebar">
         <div className="brand-row">
@@ -95,7 +111,7 @@ export default function App() {
         </nav>
         <a className="btn-compose" href="#/feed">Chirp</a>
         <button className="user-chip" onClick={logout} title="Log out">
-          <Avatar name={me.display_name || me.username} size={36} />
+          <Avatar name={me.username} size={36} />
           <span className="user-chip-txt">
             <b>{me.display_name || me.username}</b>
             <span className="muted">@{me.username}</span>
