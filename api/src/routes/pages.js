@@ -54,17 +54,18 @@ pagesRouter.get('/search', async (req, res) => {
   const echoed = outHtml(q);
 
   const list = results
-    .map((r) => `<li><strong>@${outHtml(r.username)}</strong>: ${outHtml(r.body)}</li>`)
+    .map((r) => `<li><strong>@${outHtml(r.username)}</strong> ${outHtml(r.body)}</li>`)
     .join('');
 
   const inner = `
-    <h1>Search</h1>
-    <form method="get" action="/search">
-      <input name="q" value="${outHtml(q)}" placeholder="search the feed" autofocus>
+    <h1>Search Chirp</h1>
+    <form class="searchbar" method="get" action="/search">
+      <input name="q" value="${outHtml(q)}" placeholder="Search the feed…" autofocus>
       <button type="submit">Search</button>
     </form>
-    <p class="echo">You searched for: ${echoed}</p>
-    <ul class="results">${list || '<li class="muted">No results.</li>'}</ul>`;
+    ${String(q).trim() ? `<p class="echo">Results for: <b>${echoed}</b></p>` : ''}
+    <ul class="results">${list || `<li class="muted">${String(q).trim() ? 'No posts matched your search.' : 'Type something to search.'}</li>`}</ul>
+    <p class="hint">This is the server-rendered search page (the reflected-XSS demo). The in-app search is at <a href="/#/search?q=${encodeURIComponent(q)}">/#/search</a>.</p>`;
 
   res.type('html').send(layout(res, `Search: ${q}`, inner));
 });
@@ -82,7 +83,10 @@ pagesRouter.get('/render/preview', requireAuth, async (req, res) => {
   const inner = `
     <h1>Link preview</h1>
     <p class="muted">Source: ${outHtml(url)}</p>
-    <div class="preview-card" id="preview">${cleaned}</div>`;
+    <div class="card">
+      <div class="preview-card" id="preview">${cleaned}</div>
+    </div>
+    <p class="hint">This is the server-rendered preview page (the mutation-XSS demo).</p>`;
 
   res.type('html').send(layout(res, 'Link preview', inner));
 });
