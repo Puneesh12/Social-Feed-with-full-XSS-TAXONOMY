@@ -6,11 +6,11 @@ import { Feed } from './components/Feed';
 import { Composer } from './components/Composer';
 import { Profile } from './components/Profile';
 import { ProfileEdit } from './components/ProfileEdit';
-import { Auth } from './components/Auth';
 import { Search } from './components/Search';
 import { Avatar } from './components/Avatar';
 import { LabGuide } from './components/LabGuide';
 import { Icon } from './components/Icon';
+import { AuthPage } from './components/AuthPage';
 
 interface Me { id: number; username: string; role: string; display_name: string }
 
@@ -24,10 +24,21 @@ const NAV = [
 export default function App() {
   const route = useHashRoute();
   const [me, setMe] = useState<Me | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
   const [feedKey, setFeedKey] = useState(0);
 
-  const refreshMe = () => api.me().then(setMe).catch(() => setMe(null));
+  const refreshMe = () =>
+    api.me().then(setMe).catch(() => setMe(null)).finally(() => setAuthChecked(true));
   useEffect(() => { refreshMe(); }, []);
+
+  // Gate: nothing loads until we know if you're logged in (avoids a flash).
+  if (!authChecked) {
+    return <div className="boot"><span className="boot-logo">🐦</span></div>;
+  }
+  // Instagram-style: full-screen sign-in page first; the app appears after login.
+  if (!me) {
+    return <AuthPage onAuth={refreshMe} />;
+  }
 
   async function logout() {
     await api.logout();
@@ -58,19 +69,15 @@ export default function App() {
             );
           })}
         </nav>
-        {me && <a className="btn-compose" href="#/feed">Chirp</a>}
-        {me ? (
-          <button className="user-chip" onClick={logout} title="Log out">
-            <Avatar name={me.display_name || me.username} size={36} />
-            <span className="user-chip-txt">
-              <b>{me.display_name || me.username}</b>
-              <span className="muted">@{me.username}</span>
-            </span>
-            <span className="user-chip-more">⋯</span>
-          </button>
-        ) : (
-          <a className="btn-compose" href="#/login">Log in</a>
-        )}
+        <a className="btn-compose" href="#/feed">Chirp</a>
+        <button className="user-chip" onClick={logout} title="Log out">
+          <Avatar name={me.display_name || me.username} size={36} />
+          <span className="user-chip-txt">
+            <b>{me.display_name || me.username}</b>
+            <span className="muted">@{me.username}</span>
+          </span>
+          <span className="user-chip-more">⏻</span>
+        </button>
       </aside>
 
       {/* ---------- Center column ---------- */}
@@ -82,20 +89,18 @@ export default function App() {
 
         {view === 'feed' && (
           <>
-            {me
-              ? <Composer me={me.display_name || me.username} onPosted={() => setFeedKey((k) => k + 1)} />
-              : <div className="signin-prompt card"><b>New to Chirp?</b> <a href="#/login">Sign in</a> to post.</div>}
+            <Composer me={me.display_name || me.username} onPosted={() => setFeedKey((k) => k + 1)} />
             <Feed key={feedKey} />
           </>
         )}
 
         {view === 'search' && <Search term={route.query.q || ''} />}
 
-        {view === 'profile' && <Profile username={route.parts[1] || (me?.username ?? '')} me={me?.username ?? null} />}
+        {view === 'profile' && <Profile username={route.parts[1] || me.username} me={me.username} />}
 
-        {view === 'settings' && (me ? <ProfileEdit onSaved={() => setFeedKey((k) => k + 1)} /> : <Auth onAuth={refreshMe} />)}
+        {view === 'settings' && <ProfileEdit onSaved={() => setFeedKey((k) => k + 1)} />}
 
-        {view === 'login' && (me ? <p className="pad">You're logged in as @{me.username}.</p> : <Auth onAuth={refreshMe} />)}
+        {view === 'login' && <p className="pad">You're logged in as @{me.username}.</p>}
       </main>
 
       {/* ---------- Right rail ---------- */}
@@ -112,7 +117,7 @@ export default function App() {
           <input name="q" placeholder="Search Chirp" defaultValue={route.query.q || ''} />
         </form>
 
-        <LabGuide loggedIn={!!me} />
+        <LabGuide loggedIn={true} />
 
         <div className="rail-card">
           <h3>Who to follow</h3>
