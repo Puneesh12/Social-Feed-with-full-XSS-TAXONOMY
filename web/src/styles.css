@@ -65,7 +65,8 @@ code { background: var(--panel-2); padding: 1px 6px; border-radius: 6px; font-si
 .layout.nav-collapsed .btn-compose { display: none; }
 .layout.nav-collapsed .brand-row { flex-direction: column; gap: 12px; }
 .layout.nav-collapsed .nav-item { justify-content: center; padding: 14px; }
-.layout.nav-collapsed .user-chip { justify-content: center; }
+.layout.nav-collapsed .user-chip { justify-content: center; padding: 8px; }
+.layout.nav-collapsed .user-chip-more { display: none; }
 .brand-mark {
   font-size: 22px; width: 40px; height: 40px; flex: none;
   background: #fff; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center;

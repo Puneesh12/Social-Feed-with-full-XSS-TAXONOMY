@@ -1,47 +1,49 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { navigate } from '../router';
 
-interface Step { icon: string; title: string; body: string; cta?: string; go?: string }
-
-const STEPS: Step[] = [
-  {
-    icon: '🐦',
-    title: 'Welcome to Chirp',
-    body: "A tiny Twitter-style social feed — and a hands-on web-security lab. Post, follow, and explore, while learning how cross-site scripting works.",
-  },
-  {
-    icon: '✍️',
-    title: 'Share what\'s happening',
-    body: 'Use the composer on Home to post a chirp, add a link, and set your display name & bio in Settings. Everything you post shows up in the feed.',
-    cta: 'Go to Home', go: '/feed',
-  },
-  {
-    icon: '🧪',
-    title: 'Try the lab',
-    body: 'The right-hand panel lists five kinds of XSS. In the vulnerable build the payloads actually run; flip the build to defended and they\'re blocked.',
-  },
-  {
-    icon: '🛡️',
-    title: 'You\'re all set',
-    body: 'Explore the feed, check out a profile, and when you\'re ready, try the lab payloads. Have fun — safely.',
-    cta: 'Start exploring', go: '/feed',
-  },
-];
+interface Step { icon: string; title: string; body: string; go: string; cta?: string }
 
 export function Onboarding({ username, onClose }: { username: string; onClose: () => void }) {
+  const STEPS: Step[] = [
+    {
+      icon: '🐦', go: '/feed',
+      title: 'Welcome to Chirp',
+      body: 'A tiny Twitter-style social feed — and a hands-on web-security lab. This quick tour walks you through the main features.',
+    },
+    {
+      icon: '✍️', go: '/feed',
+      title: 'Share what\'s happening',
+      body: 'This is your Home feed. Use the composer at the top to post a chirp and optionally attach a link. Your posts appear here for everyone.',
+    },
+    {
+      icon: '🔍', go: '/search?q=hello',
+      title: 'Explore & search',
+      body: 'Search the feed and browse what people are posting. This is also where the DOM-based XSS demo lives.',
+    },
+    {
+      icon: '👤', go: '/settings',
+      title: 'Set up your profile',
+      body: 'Add a display name, bio, and website in Settings. (In the vulnerable build these fields are exactly where stored XSS can hide.)',
+    },
+    {
+      icon: '🧪', go: '/feed',
+      title: 'Try the lab',
+      body: 'The right-hand panel lists five kinds of XSS. In the vulnerable build the payloads run; flip to the defended build and they\'re blocked.',
+      cta: 'Start exploring',
+    },
+  ];
+
   const [i, setI] = useState(0);
   const step = STEPS[i];
   const last = i === STEPS.length - 1;
 
-  function finish(go?: string) {
-    if (go) navigate(go);
-    onClose();
-  }
+  // Navigate to the feature this step describes, so it's visible behind the card.
+  useEffect(() => { navigate(step.go); }, [i]);
 
   return (
     <div className="onb-overlay" role="dialog" aria-modal="true">
       <div className="onb-card">
-        <button className="onb-skip" onClick={() => finish()}>Skip</button>
+        <button className="onb-skip" onClick={onClose}>Skip tour</button>
 
         <div className="onb-icon">{step.icon}</div>
         <h2 className="onb-title">{step.title}</h2>
@@ -55,25 +57,13 @@ export function Onboarding({ username, onClose }: { username: string; onClose: (
 
         <div className="onb-actions">
           {i > 0 && <button className="onb-back" onClick={() => setI(i - 1)}>Back</button>}
-          {!last ? (
-            <button className="onb-next" onClick={() => (step.go ? finishNext(step.go) : setI(i + 1))}>
-              {step.cta || 'Next'} <span className="arrow">→</span>
-            </button>
-          ) : (
-            <button className="onb-next" onClick={() => finish(step.go)}>
-              {step.cta || 'Done'} <span className="arrow">→</span>
-            </button>
-          )}
+          <button className="onb-next" onClick={() => (last ? onClose() : setI(i + 1))}>
+            {last ? (step.cta || 'Done') : (step.cta || 'Next')} <span className="arrow">→</span>
+          </button>
         </div>
 
-        <p className="onb-hello">Signed in as <b>@{username}</b></p>
+        <p className="onb-hello">Step {i + 1} of {STEPS.length} · <b>@{username}</b></p>
       </div>
     </div>
   );
-
-  // Middle steps with a CTA navigate but keep the tour going.
-  function finishNext(go: string) {
-    navigate(go);
-    setI(i + 1);
-  }
 }
