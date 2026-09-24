@@ -9,6 +9,7 @@ import { ProfileEdit } from './components/ProfileEdit';
 import { Auth } from './components/Auth';
 import { Search } from './components/Search';
 import { Avatar } from './components/Avatar';
+import { LabGuide } from './components/LabGuide';
 
 interface Me { id: number; username: string; role: string; display_name: string }
 
@@ -108,18 +109,7 @@ export default function App() {
           <input name="q" placeholder="Search Chirp" defaultValue={route.query.q || ''} />
         </form>
 
-        <div className="rail-card">
-          <h3>About this lab</h3>
-          <p className="muted small">
-            Chirp demonstrates the full XSS taxonomy — stored, reflected, DOM, mutation, and
-            <code> javascript:</code> URLs — with a one-switch defended build.
-          </p>
-          <p className={`mode-line ${BUILD_MODE}`}>
-            {BUILD_MODE === 'vulnerable'
-              ? '⚠ Vulnerable build active'
-              : '🛡 Defended build active'}
-          </p>
-        </div>
+        <LabGuide loggedIn={!!me} />
 
         <div className="rail-card">
           <h3>Who to follow</h3>
