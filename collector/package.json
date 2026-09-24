@@ -1,0 +1,10 @@
+{
+  "name": "chirp-collector",
+  "version": "1.0.0",
+  "description": "Chirp lab attacker collector — XSS exfil listener.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

@@ -40,23 +40,73 @@ Browser (React SPA)  ──HTTP──▶  Nginx edge  ──▶  Express API  �
 ## Quick start
 
 ```bash
-cp .env.example .env            # choose BUILD_MODE here (default: vulnerable)
-docker compose up --build       # brings up web, api, db, redis, nginx, collector
-docker compose exec api node src/seed.js   # seed demo users + posts
+cp .env.example .env                       # choose BUILD_MODE (default: vulnerable)
+docker compose up --build -d               # build images + start all 5 containers
+docker compose exec api node src/seed.js   # seed demo users + posts (first time only)
 ```
 
 Then open **http://localhost:8080**.
 
 Demo logins: `alice / password123`, `bob / password123`, `admin / admin12345`.
 
-**Switch builds:** edit `.env` and set both `BUILD_MODE` and `VITE_BUILD_MODE`
+**Switch builds:** edit `.env` — set both `BUILD_MODE` and `VITE_BUILD_MODE`
 to `defended` (or `vulnerable`), then:
 
 ```bash
-docker compose up --build
+docker compose up --build -d
 ```
 
 Check the live mode any time: `curl http://localhost:8080/api/config`.
+
+---
+
+## Docker command reference
+
+### Container management
+
+```bash
+docker compose ps                        # status of all containers + health
+docker compose up --build -d             # (re)build images and start in background
+docker compose down                      # stop and remove containers (data kept)
+docker compose down -v                   # stop + wipe the MongoDB volume (clean slate)
+docker compose restart api               # restart a single service without rebuild
+```
+
+### Logs
+
+```bash
+docker compose logs -f                   # tail ALL services together
+docker compose logs -f api               # Express API only
+docker compose logs -f nginx             # nginx access log (every HTTP request)
+docker compose logs -f web               # SPA nginx (static file serving)
+docker compose logs -f db                # MongoDB
+docker compose logs -f collector         # XSS beacon listener
+docker compose logs --tail=50 api        # last 50 lines, no follow
+```
+
+### Debugging & inspection
+
+```bash
+docker compose exec api sh               # shell inside the API container
+docker compose exec db mongosh chirp     # MongoDB shell on the chirp database
+docker compose exec api node src/seed.js # re-seed users/posts
+curl http://localhost:8080/api/config    # confirm live BUILD_MODE
+curl http://localhost:8080/healthz       # API health (returns {"ok":true,"mode":"..."})
+curl http://127.0.0.1:9000/log          # view all captured XSS beacons
+curl http://127.0.0.1:9000/             # beacon count summary
+```
+
+### Port map
+
+| Service | Internal port | Host-exposed |
+|---------|--------------|-------------|
+| nginx (edge) | 80 | **localhost:8080** |
+| api (Express) | 3000 | not exposed (proxied by nginx) |
+| web (SPA) | 80 | not exposed (proxied by nginx) |
+| db (MongoDB) | 27017 | not exposed |
+| collector | 9000 | **127.0.0.1:9000** (loopback only) |
+
+---
 
 ### No-Docker dev (optional)
 

@@ -11,6 +11,7 @@
 services:
   db:
     image: mongo:7
+    restart: unless-stopped
     environment:
       MONGO_INITDB_DATABASE: ${MONGODB_DB:-chirp}
     volumes:
@@ -24,6 +25,8 @@ services:
 
   api:
     build: ./api
+    image: chirp/api:latest
+    restart: unless-stopped
     environment:
       NODE_ENV: production
       BUILD_MODE: ${BUILD_MODE:-vulnerable}
@@ -34,6 +37,14 @@ services:
       CSRF_SECRET: ${CSRF_SECRET:-dev-only-csrf-secret-change-me}
     depends_on:
       db: { condition: service_healthy }
+    # Health check so nginx waits for the API to be ready before accepting
+    # traffic — prevents 502 Bad Gateway on first `docker compose up`.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/healthz | grep -q 'true' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     networks: [chirp_net]
 
   web:
@@ -41,24 +52,34 @@ services:
       context: ./web
       args:
         VITE_BUILD_MODE: ${VITE_BUILD_MODE:-vulnerable}
+    image: chirp/web:latest
+    restart: unless-stopped
     networks: [chirp_net]
 
   nginx:
-    image: nginx:1.27-alpine
-    depends_on: [api, web]
+    build: ./nginx
+    image: chirp/nginx:latest
+    restart: unless-stopped
+    # Wait for API to be healthy (not just started) to prevent 502 on first boot
+    depends_on:
+      api: { condition: service_healthy }
+      web: { condition: service_started }
     ports:
       - "${WEB_PORT:-8080}:80"
     environment:
       BUILD_MODE: ${BUILD_MODE:-vulnerable}
-    # entrypoint picks the vulnerable/defended header set based on BUILD_MODE
+    # entrypoint.sh is baked in via the Dockerfile (with +x); only the
+    # templates and shared proxy conf are mounted at runtime so they can
+    # be updated without a full rebuild.
     volumes:
       - ./nginx/templates:/etc/nginx/templates:ro
       - ./nginx/proxy_common.conf:/etc/nginx/proxy_common.conf:ro
-      - ./nginx/entrypoint.sh:/docker-entrypoint.d/40-pick-conf.sh:ro
     networks: [chirp_net]
 
   collector:
     build: ./collector
+    image: chirp/collector:latest
+    restart: unless-stopped
     # Bound to loopback only: this is the attacker's exfil listener and must
     # never be reachable off the lab host.
     ports:
