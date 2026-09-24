@@ -11,6 +11,7 @@ import { Avatar } from './components/Avatar';
 import { LabGuide } from './components/LabGuide';
 import { Icon } from './components/Icon';
 import { AuthPage } from './components/AuthPage';
+import { Landing } from './components/Landing';
 
 interface Me { id: number; username: string; role: string; display_name: string }
 
@@ -35,9 +36,12 @@ export default function App() {
   if (!authChecked) {
     return <div className="boot"><span className="boot-logo">🐦</span></div>;
   }
-  // Instagram-style: full-screen sign-in page first; the app appears after login.
+  // Logged out: landing page first, then sign in / sign up, then the app.
   if (!me) {
-    return <AuthPage onAuth={refreshMe} />;
+    if (route.path === '/login' || route.path === '/signup') {
+      return <AuthPage onAuth={refreshMe} initialMode={route.path === '/signup' ? 'register' : 'login'} />;
+    }
+    return <Landing />;
   }
 
   async function logout() {

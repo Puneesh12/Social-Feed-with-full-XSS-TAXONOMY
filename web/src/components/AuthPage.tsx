@@ -4,8 +4,8 @@ import { BUILD_MODE } from '../build';
 
 // Full-screen sign-in / sign-up page shown BEFORE the app loads (Instagram
 // style). The rest of the app is gated behind this in App.tsx.
-export function AuthPage({ onAuth }: { onAuth: () => void }) {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+export function AuthPage({ onAuth, initialMode = 'login' }: { onAuth: () => void; initialMode?: 'login' | 'register' }) {
+  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -45,6 +45,7 @@ export function AuthPage({ onAuth }: { onAuth: () => void }) {
       {/* Right auth card */}
       <main className="authpage-main">
         <form className="authpage-card" onSubmit={submit}>
+          <a className="authpage-back" href="#/">← Back to home</a>
           <div className="authpage-card-logo"><span>🐦</span> Chirp</div>
           <h2>{mode === 'login' ? 'Log in to your account' : 'Create your account'}</h2>
           <p className="authpage-sub">
